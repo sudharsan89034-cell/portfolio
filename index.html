@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Sudharsan A – Salesforce Developer & AWS Cloud</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --bg2: #111118;
+    --bg3: #16161f;
+    --border: rgba(255,255,255,0.08);
+    --border2: rgba(255,255,255,0.14);
+    --text: #f0f0f5;
+    --muted: #888899;
+    --accent: #4f8ef7;
+    --accent2: #7c6af7;
+    --accent3: #3ecfb0;
+    --sf: #00a1e0;
+    --aws: #ff9900;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Space Grotesk', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  /* NOISE OVERLAY */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none; z-index: 0; opacity: 0.4;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 1rem 2.5rem;
+    background: rgba(10,10,15,0.85);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    z-index: 100;
+  }
+  .nav-logo { font-family: 'Syne', sans-serif; font-size: 1.2rem; font-weight: 800; color: var(--text); text-decoration: none; }
+  .nav-logo span { color: var(--accent); }
+  .nav-links { display: flex; gap: 2rem; list-style: none; }
+  .nav-links a { color: var(--muted); text-decoration: none; font-size: 0.9rem; font-weight: 500; transition: color 0.2s; }
+  .nav-links a:hover { color: var(--text); }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh;
+    display: flex; align-items: center;
+    padding: 6rem 2.5rem 4rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero-glow {
+    position: absolute; top: 10%; left: 50%; transform: translateX(-50%);
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(79,142,247,0.12) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero-glow2 {
+    position: absolute; bottom: 0; right: -100px;
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, rgba(124,106,247,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero-inner { max-width: 900px; margin: 0 auto; position: relative; z-index: 1; }
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(79,142,247,0.1); border: 1px solid rgba(79,142,247,0.25);
+    color: var(--accent); font-size: 0.8rem; font-weight: 600;
+    padding: 0.35rem 1rem; border-radius: 50px; margin-bottom: 1.5rem;
+    letter-spacing: 0.05em; text-transform: uppercase;
+  }
+  .hero-badge::before { content: ''; width: 7px; height: 7px; background: var(--accent); border-radius: 50%; animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(1.3)} }
+  .hero h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(2.8rem, 6vw, 5rem);
+    font-weight: 800; line-height: 1.05;
+    letter-spacing: -0.02em;
+    margin-bottom: 1.5rem;
+  }
+  .hero h1 .name { color: var(--text); }
+  .hero h1 .role {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+    display: block;
+  }
+  .hero-desc {
+    font-size: 1.15rem; color: var(--muted); max-width: 580px;
+    margin-bottom: 2.5rem; line-height: 1.8;
+  }
+  .hero-desc strong { color: var(--text); font-weight: 600; }
+  .hero-btns { display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 3rem; }
+  .btn-primary {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--accent); color: #fff;
+    padding: 0.75rem 1.75rem; border-radius: 8px;
+    font-weight: 600; font-size: 0.95rem; text-decoration: none;
+    transition: all 0.2s; border: none; cursor: pointer;
+  }
+  .btn-primary:hover { background: #3a7ee8; transform: translateY(-1px); }
+  .btn-outline {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: transparent; color: var(--text);
+    padding: 0.75rem 1.75rem; border-radius: 8px;
+    font-weight: 600; font-size: 0.95rem; text-decoration: none;
+    border: 1px solid var(--border2); transition: all 0.2s;
+  }
+  .btn-outline:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-1px); }
+  .cert-row { display: flex; gap: 1rem; flex-wrap: wrap; }
+  .cert-pill {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--bg3); border: 1px solid var(--border);
+    padding: 0.5rem 1rem; border-radius: 50px; font-size: 0.82rem; font-weight: 600;
+  }
+  .cert-pill .dot { width: 8px; height: 8px; border-radius: 50%; }
+
+  /* SECTION COMMON */
+  section { padding: 5rem 2.5rem; position: relative; }
+  .section-inner { max-width: 900px; margin: 0 auto; }
+  .section-label {
+    font-size: 0.75rem; font-weight: 700; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--accent); margin-bottom: 0.5rem;
+  }
+  .section-title {
+    font-family: 'Syne', sans-serif; font-size: clamp(1.8rem, 3.5vw, 2.6rem);
+    font-weight: 800; margin-bottom: 3rem; color: var(--text);
+  }
+
+  /* ABOUT */
+  .about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; align-items: center; }
+  .about-text p { color: var(--muted); margin-bottom: 1rem; font-size: 1rem; line-height: 1.9; }
+  .about-text p strong { color: var(--text); }
+  .about-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .stat-card {
+    background: var(--bg3); border: 1px solid var(--border);
+    border-radius: 12px; padding: 1.5rem;
+    text-align: center;
+  }
+  .stat-card .num {
+    font-family: 'Syne', sans-serif; font-size: 2rem; font-weight: 800;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  }
+  .stat-card .label { font-size: 0.8rem; color: var(--muted); font-weight: 500; margin-top: 4px; }
+
+  /* SKILLS */
+  .skills-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; }
+  .skill-card {
+    background: var(--bg3); border: 1px solid var(--border);
+    border-radius: 12px; padding: 1.25rem 1.5rem;
+    transition: border-color 0.2s, transform 0.2s;
+  }
+  .skill-card:hover { border-color: var(--border2); transform: translateY(-2px); }
+  .skill-cat {
+    font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em;
+    text-transform: uppercase; margin-bottom: 0.75rem;
+  }
+  .skill-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+  .tag {
+    background: rgba(255,255,255,0.05); border: 1px solid var(--border);
+    color: var(--muted); font-size: 0.78rem; font-weight: 500;
+    padding: 3px 10px; border-radius: 50px;
+  }
+
+  /* PROJECTS */
+  .projects-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.5rem; }
+  .project-card {
+    background: var(--bg3); border: 1px solid var(--border);
+    border-radius: 14px; padding: 1.75rem;
+    transition: border-color 0.2s, transform 0.2s;
+    display: flex; flex-direction: column; gap: 1rem;
+  }
+  .project-card:hover { border-color: rgba(79,142,247,0.35); transform: translateY(-3px); }
+  .project-icon {
+    width: 44px; height: 44px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.3rem;
+  }
+  .project-card h3 { font-size: 1rem; font-weight: 700; color: var(--text); }
+  .project-card p { font-size: 0.875rem; color: var(--muted); line-height: 1.7; flex: 1; }
+  .project-stack { display: flex; flex-wrap: wrap; gap: 6px; }
+  .stack-tag {
+    font-size: 0.72rem; font-weight: 600; padding: 3px 9px; border-radius: 50px;
+    border: 1px solid;
+  }
+
+  /* CERTS */
+  .certs-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+  .cert-card {
+    background: var(--bg3); border: 1px solid var(--border);
+    border-radius: 14px; padding: 2rem;
+    display: flex; align-items: center; gap: 1.5rem;
+    transition: border-color 0.2s;
+  }
+  .cert-card:hover { border-color: var(--border2); }
+  .cert-logo {
+    width: 56px; height: 56px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.6rem; flex-shrink: 0;
+  }
+  .cert-card h3 { font-size: 1rem; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+  .cert-card p { font-size: 0.82rem; color: var(--muted); }
+
+  /* CONTACT */
+  .contact-box {
+    background: linear-gradient(135deg, rgba(79,142,247,0.08), rgba(124,106,247,0.08));
+    border: 1px solid rgba(79,142,247,0.2);
+    border-radius: 20px; padding: 3rem;
+    text-align: center;
+  }
+  .contact-box h2 {
+    font-family: 'Syne', sans-serif; font-size: 2rem; font-weight: 800;
+    margin-bottom: 0.75rem;
+  }
+  .contact-box p { color: var(--muted); margin-bottom: 2rem; font-size: 1rem; }
+  .contact-links { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+  .contact-link {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 0.65rem 1.4rem; border-radius: 8px;
+    font-size: 0.9rem; font-weight: 600; text-decoration: none;
+    border: 1px solid var(--border2); color: var(--text); background: var(--bg3);
+    transition: all 0.2s;
+  }
+  .contact-link:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-1px); }
+  .contact-link svg { width: 18px; height: 18px; }
+
+  /* FOOTER */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 1.5rem 2.5rem;
+    text-align: center;
+    color: var(--muted); font-size: 0.82rem;
+  }
+
+  /* DIVIDER */
+  .divider { border: none; border-top: 1px solid var(--border); margin: 0; }
+
+  @media(max-width: 700px) {
+    nav { padding: 1rem 1.25rem; }
+    .nav-links { display: none; }
+    .hero, section { padding-left: 1.25rem; padding-right: 1.25rem; }
+    .about-grid, .certs-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="#"><span>S</span>udharsan</a>
+  <ul class="nav-links">
+    <li><a href="#about">About</a></li>
+    <li><a href="#skills">Skills</a></li>
+    <li><a href="#projects">Projects</a></li>
+    <li><a href="#certifications">Certs</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="home">
+  <div class="hero-glow"></div>
+  <div class="hero-glow2"></div>
+  <div class="hero-inner">
+    <div class="hero-badge">Open to Internships</div>
+    <h1>
+      <span class="name">Sudharsan A</span>
+      <span class="role">Salesforce Dev &amp; Cloud Builder</span>
+    </h1>
+    <p class="hero-desc">
+      Final-year <strong>Information Technology</strong> student building real-world apps with
+      <strong>Salesforce</strong>, <strong>AWS</strong>, and <strong>React.js</strong> —
+      not just as assignments, but as actual solutions.
+    </p>
+    <div class="hero-btns">
+      <a href="#projects" class="btn-primary">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 12h18M13 6l6 6-6 6"/></svg>
+        View Projects
+      </a>
+      <a href="mailto:sudharsan89034@gmail.com" class="btn-outline">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 7L2 7"/></svg>
+        Get in Touch
+      </a>
+    </div>
+    <div class="cert-row">
+      <span class="cert-pill">
+        <span class="dot" style="background:#ff9900"></span>
+        AWS Cloud Practitioner
+      </span>
+      <span class="cert-pill">
+        <span class="dot" style="background:#00a1e0"></span>
+        Salesforce Platform Developer
+      </span>
+    </div>
+  </div>
+</section>
+
+<hr class="divider"/>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="section-inner">
+    <p class="section-label">About Me</p>
+    <h2 class="section-title">I build, I ship, I learn.</h2>
+    <div class="about-grid">
+      <div class="about-text">
+        <p>My tech journey started with curiosity and took off the moment I earned my <strong>first certification</strong>. I realized I didn't need to wait to graduate to build real things.</p>
+        <p>While most students focus on marks, I focus on <strong>practical skills</strong> — building Salesforce automation, deploying cloud infrastructure, and shipping full-stack apps that solve actual problems.</p>
+        <p>Currently a final-year <strong>B.Tech IT student at Karpagam Institute of Technology, Coimbatore</strong> — actively seeking internship roles in Salesforce development and cloud engineering.</p>
+      </div>
+      <div class="about-stats">
+        <div class="stat-card"><div class="num">2</div><div class="label">Industry Certifications</div></div>
+        <div class="stat-card"><div class="num">3</div><div class="label">Real-World Projects</div></div>
+        <div class="stat-card"><div class="num">2027</div><div class="label">Graduation Year</div></div>
+        <div class="stat-card"><div class="num">4+</div><div class="label">Technologies Used</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider"/>
+
+<!-- SKILLS -->
+<section id="skills">
+  <div class="section-inner">
+    <p class="section-label">Technical Skills</p>
+    <h2 class="section-title">What I work with</h2>
+    <div class="skills-grid">
+      <div class="skill-card">
+        <div class="skill-cat" style="color: var(--sf);">Salesforce</div>
+        <div class="skill-tags">
+          <span class="tag">Apex</span>
+          <span class="tag">Triggers</span>
+          <span class="tag">Classes</span>
+          <span class="tag">LWC</span>
+        </div>
+      </div>
+      <div class="skill-card">
+        <div class="skill-cat" style="color: var(--aws);">AWS Cloud</div>
+        <div class="skill-tags">
+          <span class="tag">EC2</span>
+          <span class="tag">S3</span>
+          <span class="tag">Deployments</span>
+        </div>
+      </div>
+      <div class="skill-card">
+        <div class="skill-cat" style="color: var(--accent3);">Frontend</div>
+        <div class="skill-tags">
+          <span class="tag">React.js</span>
+          <span class="tag">HTML</span>
+          <span class="tag">CSS</span>
+        </div>
+      </div>
+      <div class="skill-card">
+        <div class="skill-cat" style="color: var(--accent2);">Languages</div>
+        <div class="skill-tags">
+          <span class="tag">Java</span>
+          <span class="tag">JavaScript</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider"/>
+
+<!-- PROJECTS -->
+<section id="projects">
+  <div class="section-inner">
+    <p class="section-label">Projects</p>
+    <h2 class="section-title">Things I've built</h2>
+    <div class="projects-grid">
+
+      <div class="project-card">
+        <div class="project-icon" style="background:rgba(62,207,176,0.12);">🚨</div>
+        <h3>Emergency Case Logger</h3>
+        <p>A full-stack web application for hospitals to log and track emergency cases from intake to closure — reducing manual errors in high-pressure settings.</p>
+        <div class="project-stack">
+          <span class="stack-tag" style="color:var(--accent3);border-color:rgba(62,207,176,0.3)">React.js</span>
+          <span class="stack-tag" style="color:var(--accent2);border-color:rgba(124,106,247,0.3)">Full-Stack</span>
+          <span class="stack-tag" style="color:var(--muted);border-color:var(--border)">Java</span>
+        </div>
+      </div>
+
+      <div class="project-card">
+        <div class="project-icon" style="background:rgba(0,161,224,0.12);">🏥</div>
+        <h3>Hospital Appointment System</h3>
+        <p>Salesforce-based system to manage patients, doctors, and appointment scheduling with automated workflows and validation rules.</p>
+        <div class="project-stack">
+          <span class="stack-tag" style="color:var(--sf);border-color:rgba(0,161,224,0.3)">Salesforce</span>
+          <span class="stack-tag" style="color:var(--accent);border-color:rgba(79,142,247,0.3)">Apex</span>
+          <span class="stack-tag" style="color:var(--accent2);border-color:rgba(124,106,247,0.3)">LWC</span>
+        </div>
+      </div>
+
+      <div class="project-card">
+        <div class="project-icon" style="background:rgba(255,153,0,0.12);">📋</div>
+        <h3>Complaint Management System</h3>
+        <p>Salesforce system for creating, tracking, and managing customer complaints with automated email notifications for high-priority issues.</p>
+        <div class="project-stack">
+          <span class="stack-tag" style="color:var(--sf);border-color:rgba(0,161,224,0.3)">Salesforce</span>
+          <span class="stack-tag" style="color:var(--aws);border-color:rgba(255,153,0,0.3)">Automation</span>
+          <span class="stack-tag" style="color:var(--accent);border-color:rgba(79,142,247,0.3)">Apex</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<hr class="divider"/>
+
+<!-- CERTIFICATIONS -->
+<section id="certifications">
+  <div class="section-inner">
+    <p class="section-label">Certifications</p>
+    <h2 class="section-title">Industry validated</h2>
+    <div class="certs-grid">
+      <div class="cert-card">
+        <div class="cert-logo" style="background:rgba(255,153,0,0.12); font-size:2rem;">☁️</div>
+        <div>
+          <h3>AWS Certified Cloud Practitioner</h3>
+          <p>Amazon Web Services</p>
+        </div>
+      </div>
+      <div class="cert-card">
+        <div class="cert-logo" style="background:rgba(0,161,224,0.12); font-size:2rem;">⚡</div>
+        <div>
+          <h3>Salesforce Certified Platform Developer</h3>
+          <p>Salesforce</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider"/>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="section-inner">
+    <div class="contact-box">
+      <h2>Let's connect</h2>
+      <p>Open to internships in Salesforce development and cloud engineering.<br/>Send me a message or connect on LinkedIn.</p>
+      <div class="contact-links">
+        <a href="mailto:sudharsan89034@gmail.com" class="contact-link">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 7L2 7"/></svg>
+          sudharsan89034@gmail.com
+        </a>
+        <a href="https://www.linkedin.com/in/sudharsan452/" target="_blank" class="contact-link">
+          <svg fill="currentColor" viewBox="0 0 24 24"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+          LinkedIn
+        </a>
+        <a href="https://github.com/sudharsan89034-cell" target="_blank" class="contact-link">
+          <svg fill="currentColor" viewBox="0 0 24 24"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+          GitHub
+        </a>
+        <a href="tel:+918903452081" class="contact-link">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 2.28h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6 6l.92-.92a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.73 17z"/></svg>
+          +91 89034 52081
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <p>Built by Sudharsan A · B.Tech IT · Karpagam Institute of Technology, Coimbatore</p>
+</footer>
+
+</body>
+</html>
